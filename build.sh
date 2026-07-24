@@ -6,6 +6,8 @@ BUILD_DIR=${BUILD_DIR:-"$SCRIPT_DIR/build"}
 BUILD_TYPE=${BUILD_TYPE:-Release}
 CC=${CC:-x86_64-w64-mingw32-gcc}
 RC=${RC:-x86_64-w64-mingw32-windres}
+CC=$(command -v "$CC")
+RC=$(command -v "$RC")
 
 cmake -S "$SCRIPT_DIR" -B "$BUILD_DIR" \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
