@@ -1,0 +1,6 @@
+#ifndef INPUTGLASS_VERSION_H
+#define INPUTGLASS_VERSION_H
+
+#define APP_VERSION "@PROJECT_VERSION@"
+
+#endif

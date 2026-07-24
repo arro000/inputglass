@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title description">
+  <title id="title">InputGlass icon</title>
+  <desc id="description">Three luminous signal bars inside a dark glass tile.</desc>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#151f31"/>
+      <stop offset="1" stop-color="#080c14"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#7ce3ff"/>
+      <stop offset="1" stop-color="#32b9ed"/>
+    </linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#b99aff"/>
+      <stop offset="1" stop-color="#865be8"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffd282"/>
+      <stop offset="1" stop-color="#f5a72d"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="50" fill="url(#tile)" stroke="#33415d" stroke-width="8"/>
+  <path d="M45 198V66c0-9 7-16 16-16h22c9 0 16 7 16 16v132z" fill="url(#cyan)"/>
+  <path d="M105 198V88c0-9 7-16 16-16h22c9 0 16 7 16 16v110z" fill="url(#violet)"/>
+  <path d="M165 198v-84c0-9 7-16 16-16h22c9 0 16 7 16 16v84z" fill="url(#amber)"/>
+  <path d="M40 198h176" fill="none" stroke="#e8eff9" stroke-linecap="round" stroke-width="8"/>
+  <circle cx="72" cy="73" r="8" fill="#e8eff9" opacity=".9"/>
+  <circle cx="132" cy="95" r="8" fill="#e8eff9" opacity=".9"/>
+  <circle cx="192" cy="121" r="8" fill="#e8eff9" opacity=".9"/>
+</svg>

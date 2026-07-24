@@ -1,0 +1,53 @@
+name: Bug report
+description: Report incorrect input behavior or an application defect
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report an InputGlass problem. Remove sensitive key sequences before attaching logs.
+  - type: input
+    id: version
+    attributes:
+      label: InputGlass version
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Windows, Wine, or Winlator version and architecture
+      placeholder: Windows 11 24H2 x64
+    validations:
+      required: true
+  - type: textarea
+    id: devices
+    attributes:
+      label: Devices and remappers
+      description: List relevant physical devices, virtual devices, drivers, and remapping software.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Launch InputGlass
+        2. Connect ...
+        3. Press ...
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized log excerpt
+      description: Paste only the smallest relevant excerpt and remove sensitive input.
+      render: text

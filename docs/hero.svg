@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" role="img" aria-labelledby="title description">
+  <title id="title">InputGlass</title>
+  <desc id="description">A stylized preview of the InputGlass live input diagnostics dashboard.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#121c2d"/>
+      <stop offset=".55" stop-color="#080c14"/>
+      <stop offset="1" stop-color="#161127"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#182338"/>
+      <stop offset="1" stop-color="#101724"/>
+    </linearGradient>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="460" rx="28" fill="url(#background)"/>
+  <circle cx="1092" cy="48" r="130" fill="#9a6cff" opacity=".08" filter="url(#glow)"/>
+  <circle cx="690" cy="420" r="150" fill="#4ed3ff" opacity=".07" filter="url(#glow)"/>
+
+  <g transform="translate(70 76)">
+    <rect x="0" y="0" width="12" height="75" rx="5" fill="#4ed3ff"/>
+    <rect x="20" y="14" width="12" height="61" rx="5" fill="#9a6cff"/>
+    <rect x="40" y="29" width="12" height="46" rx="5" fill="#f7ae41"/>
+    <text x="82" y="44" fill="#e8eff9" font-family="Segoe UI, sans-serif" font-size="42" font-weight="700" letter-spacing="2">INPUTGLASS</text>
+    <text x="83" y="73" fill="#4ed3ff" font-family="Consolas, monospace" font-size="14" letter-spacing="4">SEE EVERY SIGNAL.</text>
+  </g>
+  <text x="70" y="210" fill="#e8eff9" font-family="Segoe UI, sans-serif" font-size="28" font-weight="600">A live window into every control.</text>
+  <text x="70" y="248" fill="#8f9db4" font-family="Segoe UI, sans-serif" font-size="18">Keyboard, mouse and XInput diagnostics</text>
+  <text x="70" y="278" fill="#8f9db4" font-family="Segoe UI, sans-serif" font-size="18">in one portable Windows dashboard.</text>
+  <g transform="translate(70 326)" font-family="Consolas, monospace" font-size="13">
+    <rect width="116" height="32" rx="6" fill="#162a35" stroke="#4ed3ff"/>
+    <circle cx="18" cy="16" r="5" fill="#4ed3ff"/>
+    <text x="32" y="21" fill="#dfe9f6">RAW INPUT</text>
+    <rect x="128" width="102" height="32" rx="6" fill="#211a35" stroke="#9a6cff"/>
+    <circle cx="146" cy="16" r="5" fill="#9a6cff"/>
+    <text x="160" y="21" fill="#dfe9f6">XINPUT</text>
+    <rect x="242" width="122" height="32" rx="6" fill="#302515" stroke="#f7ae41"/>
+    <circle cx="260" cy="16" r="5" fill="#f7ae41"/>
+    <text x="274" y="21" fill="#dfe9f6">CSV + TEXT</text>
+  </g>
+
+  <g transform="translate(580 46)">
+    <rect width="550" height="368" rx="16" fill="#0b111c" stroke="#334158" stroke-width="2"/>
+    <rect width="550" height="46" rx="16" fill="#111b2b"/>
+    <path d="M0 46h550" stroke="#334158"/>
+    <rect x="18" y="12" width="6" height="23" fill="#4ed3ff"/>
+    <rect x="28" y="17" width="6" height="18" fill="#9a6cff"/>
+    <rect x="38" y="22" width="6" height="13" fill="#f7ae41"/>
+    <text x="56" y="28" fill="#e8eff9" font-family="Segoe UI, sans-serif" font-size="14" font-weight="700">INPUTGLASS</text>
+    <text x="245" y="28" fill="#8f9db4" font-family="Consolas, monospace" font-size="9">FOCUS YES   RAW YES   XINPUT 1.4</text>
+
+    <rect x="14" y="60" width="316" height="178" rx="8" fill="url(#glass)" stroke="#334158"/>
+    <text x="28" y="84" fill="#e8eff9" font-family="Segoe UI, sans-serif" font-size="12" font-weight="700">KEYBOARD</text>
+    <g fill="#1b273a" stroke="#3c4e69">
+      <rect x="28" y="99" width="28" height="28" rx="4"/><rect x="61" y="99" width="28" height="28" rx="4"/><rect x="94" y="99" width="28" height="28" rx="4"/><rect x="127" y="99" width="28" height="28" rx="4"/><rect x="160" y="99" width="28" height="28" rx="4"/><rect x="193" y="99" width="28" height="28" rx="4"/><rect x="226" y="99" width="28" height="28" rx="4"/><rect x="259" y="99" width="57" height="28" rx="4"/>
+      <rect x="28" y="132" width="42" height="28" rx="4"/><rect x="75" y="132" width="28" height="28" rx="4"/><rect x="108" y="132" width="28" height="28" rx="4"/><rect x="141" y="132" width="28" height="28" rx="4"/><rect x="174" y="132" width="28" height="28" rx="4"/><rect x="207" y="132" width="28" height="28" rx="4"/><rect x="240" y="132" width="76" height="28" rx="4"/>
+      <rect x="28" y="165" width="55" height="28" rx="4"/><rect x="88" y="165" width="28" height="28" rx="4" fill="#108b89" stroke="#4ed3ff"/><rect x="121" y="165" width="28" height="28" rx="4"/><rect x="154" y="165" width="28" height="28" rx="4"/><rect x="187" y="165" width="28" height="28" rx="4"/><rect x="220" y="165" width="96" height="28" rx="4"/>
+      <rect x="28" y="198" width="65" height="28" rx="4"/><rect x="98" y="198" width="130" height="28" rx="4" fill="#108b89" stroke="#4ed3ff"/><rect x="233" y="198" width="83" height="28" rx="4"/>
+    </g>
+
+    <rect x="342" y="60" width="194" height="178" rx="8" fill="url(#glass)" stroke="#334158"/>
+    <text x="356" y="84" fill="#e8eff9" font-family="Segoe UI, sans-serif" font-size="12" font-weight="700">CONTROLLER 1</text>
+    <rect x="356" y="99" width="78" height="9" rx="4" fill="#f7ae41" opacity=".8"/>
+    <rect x="442" y="99" width="80" height="9" rx="4" fill="#26344a"/>
+    <g font-family="Consolas, monospace" font-size="8" text-anchor="middle">
+      <circle cx="392" cy="156" r="30" fill="#0d1420" stroke="#3c4e69"/><path d="M362 156h60M392 126v60" stroke="#26344a"/><circle cx="403" cy="146" r="5" fill="#4ed3ff"/>
+      <circle cx="486" cy="156" r="30" fill="#0d1420" stroke="#3c4e69"/><path d="M456 156h60M486 126v60" stroke="#26344a"/><circle cx="478" cy="162" r="5" fill="#9a6cff"/>
+      <text x="392" y="203" fill="#8f9db4">LEFT</text><text x="486" y="203" fill="#8f9db4">RIGHT</text>
+    </g>
+
+    <rect x="14" y="250" width="522" height="104" rx="8" fill="url(#glass)" stroke="#334158"/>
+    <text x="28" y="274" fill="#e8eff9" font-family="Segoe UI, sans-serif" font-size="12" font-weight="700">EVENT TIMELINE</text>
+    <g font-family="Consolas, monospace" font-size="9">
+      <text x="28" y="297" fill="#4ed3ff">001482  RAW-KBD    DOWN    VK=0x57    W</text>
+      <text x="28" y="316" fill="#e8eff9">001493  XINPUT1   CHANGE  PACKET=42  LX  0 -&gt; 8214</text>
+      <text x="28" y="335" fill="#f7ae41">001721  RAW-KBD    UP      VK=0x57    W</text>
+    </g>
+  </g>
+</svg>

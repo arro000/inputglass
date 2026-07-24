@@ -1,0 +1,6 @@
+#ifndef INPUTGLASS_RESOURCE_H
+#define INPUTGLASS_RESOURCE_H
+
+#define IDI_INPUTGLASS 101
+
+#endif

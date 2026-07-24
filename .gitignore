@@ -1,0 +1,14 @@
+/build/
+/out/
+/dist/
+/CMakeUserPresets.json
+/compile_commands.json
+/.cache/
+/.idea/
+/.vscode/
+*.exe
+*.obj
+*.o
+*.csv
+*.txt
+!CMakeLists.txt
