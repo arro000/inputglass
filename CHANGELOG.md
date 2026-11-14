@@ -3,6 +3,19 @@
 All notable changes to InputGlass are documented in this file. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Opt-in **Background capture** button: receive keyboard and mouse Raw Input while another window has
+  the focus (`RIDEV_INPUTSINK`). Off at every launch and never persisted; turning it on requires an
+  in-app red confirmation that warns about capturing sensitive input. The header shows
+  `BACKGROUND ON/OFF` and turns red while it is on.
+
+### Changed
+
+- Held-key states are kept (not cleared) when the window loses focus while background capture is on.
+
 ## [1.0.0] - 2026-07-24
 
 ### Added

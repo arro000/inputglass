@@ -62,6 +62,16 @@ resolved from the Windows system directory and sampled every 16 ms. The displaye
 value describes differences from the previous observed sample; it is not a guarantee that the
 device changed those fields atomically.
 
+### Optional: capture input while another window has the focus
+
+By default InputGlass only receives input while its own window has the focus. To diagnose input
+inside a game or another application, select **Background capture: OFF**. A red confirmation panel
+explains the risk; nothing changes until you choose **I understand, turn it on**. While it is on, the
+button and the header turn red (`BACKGROUND ON`), and every key and mouse action typed in any
+application is recorded in the session log, including passwords and private messages. Select the
+button again to turn it off (no confirmation needed). The setting is never saved: every launch starts
+with it off. Delete the session log when you are done.
+
 ## Session Logs
 
 InputGlass creates a unique pair of files for every run:
@@ -81,8 +91,9 @@ CSV columns are:
 timestamp_ms,source,action,code,name,value
 ```
 
-Input logs can reveal typed keys and control sequences. Review them before sharing. InputGlass has no
-network code or telemetry and never uploads a session.
+Input logs can reveal typed keys and control sequences. Review them before sharing. With **Background
+capture** on, this includes input typed in other applications. InputGlass has no network code or
+telemetry and never uploads a session.
 
 ## Build From Source
 
