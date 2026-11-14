@@ -120,6 +120,8 @@ typedef struct {
     HWND hwnd;
     BOOL focused;
     BOOL rawRegistered;
+    BOOL backgroundCapture; /* opt-in: keep receiving input while another window has the focus */
+    BOOL confirmPending;    /* the in-app "are you sure" panel is showing */
     BOOL shuttingDown;
     LARGE_INTEGER frequency;
     LARGE_INTEGER startCounter;
@@ -155,6 +157,9 @@ typedef struct {
     HFONT fontMono;
     RECT clearButton;
     RECT openButton;
+    RECT backgroundButton;
+    RECT confirmYes;
+    RECT confirmNo;
 } AppState;
 
 typedef struct {
@@ -894,19 +899,22 @@ static void load_xinput(void) {
     add_event("SYSTEM", "CHANGE", "XINPUT", "DLL unavailable", "No supported XInput DLL found");
 }
 
-static BOOL register_raw_input(HWND hwnd) {
+static BOOL register_raw_input(HWND hwnd, BOOL background) {
     RAWINPUTDEVICE devices[2];
+    /* RIDEV_INPUTSINK keeps WM_INPUT coming while another window has the focus. Only requested after an explicit opt-in. */
+    DWORD flags = background ? RIDEV_INPUTSINK : 0;
     devices[0].usUsagePage = 0x01;
     devices[0].usUsage = 0x02;
-    devices[0].dwFlags = 0;
+    devices[0].dwFlags = flags;
     devices[0].hwndTarget = hwnd;
     devices[1].usUsagePage = 0x01;
     devices[1].usUsage = 0x06;
-    devices[1].dwFlags = 0;
+    devices[1].dwFlags = flags;
     devices[1].hwndTarget = hwnd;
     g.rawRegistered = RegisterRawInputDevices(devices, 2, sizeof(devices[0]));
     if (g.rawRegistered)
-        add_event("SYSTEM", "CHANGE", "RAW", "Raw Input", "keyboard+mouse registered");
+        add_event("SYSTEM", "CHANGE", "RAW", "Raw Input",
+                  background ? "keyboard+mouse registered (background capture)" : "keyboard+mouse registered");
     else {
         char value[64];
         snprintf(value, sizeof(value), "registration failed error=%lu", (unsigned long)GetLastError());
@@ -927,6 +935,24 @@ static int clamp_int(int value, int minimum, int maximum) {
     if (value < minimum) return minimum;
     if (value > maximum) return maximum;
     return value;
+}
+
+/* Background capture is OFF at every launch and is never remembered. Turning it ON needs the in-app confirmation. */
+static void set_background_capture(HWND hwnd, BOOL enable) {
+    BOOL previous = g.backgroundCapture;
+    g.backgroundCapture = enable;
+    if (!register_raw_input(hwnd, enable)) {
+        g.backgroundCapture = previous; /* registration failed: keep the old mode and re-register it */
+        register_raw_input(hwnd, previous);
+        return;
+    }
+    if (enable) {
+        add_event("SYSTEM", "CHANGE", "BACKGROUND", "Background capture",
+                  "ON: input typed in ANY application is recorded in this session log");
+    } else {
+        if (!g.focused) release_active_input();
+        add_event("SYSTEM", "CHANGE", "BACKGROUND", "Background capture", "OFF: only this window's input is received");
+    }
 }
 
 static void fill_color(HDC dc, const RECT *rect, COLORREF color) {
@@ -996,14 +1022,6 @@ static void draw_status(HDC dc, int width) {
               DT_LEFT | DT_SINGLELINE | DT_VCENTER);
     if (WideCharToMultiByte(CP_UTF8, 0, g.xinputName, -1, xinput, sizeof(xinput), NULL, NULL) == 0)
         strcpy(xinput, "unknown");
-    snprintf(buffer, sizeof(buffer),
-             "FOCUS %s   RAW %s   XINPUT %s   %llu.%03llus   %llu EVENTS   LOGGING %s",
-             g.focused ? "YES" : "NO", g.rawRegistered ? "YES" : "NO", xinput,
-             (unsigned long long)(elapsed / 1000), (unsigned long long)(elapsed % 1000),
-             (unsigned long long)g.totalEvents, g.logError ? "ERROR" : "ON");
-    draw_text(dc, buffer, line, g.fontSmall, g.logError ? COLOR_WARN : COLOR_MUTED,
-              DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
-
     g.openButton.left = width - 12 - buttonWidth;
     g.openButton.right = width - 12;
     g.openButton.top = 13;
@@ -1012,10 +1030,79 @@ static void draw_status(HDC dc, int width) {
     g.clearButton.left = g.clearButton.right - (buttonWidth * 2 / 3);
     g.clearButton.top = 13;
     g.clearButton.bottom = 49;
+    g.backgroundButton.right = g.clearButton.left - 8;
+    g.backgroundButton.left = g.backgroundButton.right - (width > 1200 ? 250 : 150);
+    g.backgroundButton.top = 13;
+    g.backgroundButton.bottom = 49;
+    line.right = g.backgroundButton.left - 12;
+
+    snprintf(buffer, sizeof(buffer),
+             "FOCUS %s   RAW %s   BACKGROUND %s   XINPUT %s   %llu.%03llus   %llu EVENTS   LOGGING %s",
+             g.focused ? "YES" : "NO", g.rawRegistered ? "YES" : "NO", g.backgroundCapture ? "ON" : "OFF", xinput,
+             (unsigned long long)(elapsed / 1000), (unsigned long long)(elapsed % 1000),
+             (unsigned long long)g.totalEvents, g.logError ? "ERROR" : "ON");
+    draw_text(dc, buffer, line, g.fontSmall, (g.logError || g.backgroundCapture) ? COLOR_WARN : COLOR_MUTED,
+              DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
+
+    draw_box(dc, &g.backgroundButton, g.backgroundCapture ? RGB(110, 22, 38) : COLOR_PANEL_ALT,
+             g.backgroundCapture ? COLOR_WARN : COLOR_BORDER, 6);
     draw_box(dc, &g.clearButton, COLOR_PANEL_ALT, COLOR_BORDER, 6);
     draw_box(dc, &g.openButton, RGB(23, 82, 91), COLOR_ACCENT, 6);
+    draw_text(dc,
+              width > 1200 ? (g.backgroundCapture ? "Background capture: ON" : "Background capture: OFF")
+                           : (g.backgroundCapture ? "Background: ON" : "Background: OFF"),
+              g.backgroundButton, g.fontNormal, g.backgroundCapture ? COLOR_WARN : COLOR_TEXT,
+              DT_CENTER | DT_SINGLELINE | DT_VCENTER);
     draw_text(dc, "Clear", g.clearButton, g.fontNormal, COLOR_TEXT, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
     draw_text(dc, width > 1200 ? "Open session folder" : "Open logs", g.openButton, g.fontNormal, COLOR_TEXT,
+              DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+}
+
+/* The in-app warning shown before background capture is switched on. Drawn last, on top of the dashboard. */
+static void draw_confirmation(HDC dc, int width, int height) {
+    RECT box;
+    RECT titleRect;
+    RECT bodyRect;
+    int boxWidth = width - 80 < 700 ? width - 80 : 700;
+    int boxHeight = 330;
+    if (!g.confirmPending) {
+        SetRectEmpty(&g.confirmYes);
+        SetRectEmpty(&g.confirmNo);
+        return;
+    }
+    box.left = (width - boxWidth) / 2;
+    box.right = box.left + boxWidth;
+    box.top = (height - boxHeight) / 2;
+    box.bottom = box.top + boxHeight;
+    draw_box(dc, &box, RGB(28, 11, 17), COLOR_WARN, 10);
+    titleRect.left = box.left + 24;
+    titleRect.right = box.right - 24;
+    titleRect.top = box.top + 18;
+    titleRect.bottom = titleRect.top + 36;
+    draw_text(dc, "CAPTURE INPUT OUTSIDE THIS WINDOW?", titleRect, g.fontHeading, COLOR_WARN,
+              DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+    bodyRect.left = box.left + 24;
+    bodyRect.right = box.right - 24;
+    bodyRect.top = titleRect.bottom + 10;
+    bodyRect.bottom = box.bottom - 90;
+    draw_text(dc,
+              "InputGlass will record keyboard and mouse input while ANY other application has the focus.\n\n"
+              "This can capture sensitive information: passwords, private messages and everything you type.\n\n"
+              "The recording is written to the session log on disk. Delete the log when you are done.\n\n"
+              "It stays on only while InputGlass is running. Every launch starts with it OFF.",
+              bodyRect, g.fontNormal, COLOR_TEXT, DT_LEFT | DT_WORDBREAK);
+    g.confirmNo.left = box.left + 24;
+    g.confirmNo.right = g.confirmNo.left + 210;
+    g.confirmNo.bottom = box.bottom - 22;
+    g.confirmNo.top = g.confirmNo.bottom - 46;
+    g.confirmYes.right = box.right - 24;
+    g.confirmYes.left = g.confirmYes.right - 280;
+    g.confirmYes.bottom = g.confirmNo.bottom;
+    g.confirmYes.top = g.confirmNo.top;
+    draw_box(dc, &g.confirmNo, RGB(23, 82, 91), COLOR_ACCENT, 6);
+    draw_box(dc, &g.confirmYes, RGB(150, 28, 48), COLOR_WARN, 6);
+    draw_text(dc, "Cancel (recommended)", g.confirmNo, g.fontNormal, COLOR_TEXT, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+    draw_text(dc, "I understand, turn it on", g.confirmYes, g.fontNormal, COLOR_TEXT,
               DT_CENTER | DT_SINGLELINE | DT_VCENTER);
 }
 
@@ -1444,7 +1531,7 @@ static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPAR
         }
         add_event("SYSTEM", "CHANGE", "START", "Session",
                   "InputGlass " APP_VERSION "; 16 ms XInput polling requested");
-        register_raw_input(hwnd);
+        register_raw_input(hwnd, FALSE);
         load_xinput();
         if (!SetTimer(hwnd, TIMER_ID, TIMER_INTERVAL_MS, NULL)) {
             char value[64];
@@ -1464,8 +1551,12 @@ static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPAR
         return 0;
     case WM_KILLFOCUS:
         g.focused = FALSE;
-        release_active_input();
-        add_event("SYSTEM", "CHANGE", "FOCUS", "Window focus", "lost; active states released");
+        g.confirmPending = FALSE; /* never leave a half-answered warning behind */
+        /* With background capture the raw events keep coming, so held keys must NOT be cleared here. Without it, clear them. */
+        if (!g.backgroundCapture)
+            release_active_input();
+        add_event("SYSTEM", "CHANGE", "FOCUS", "Window focus",
+                  g.backgroundCapture ? "lost; raw input continues in background" : "lost; active states released");
         return 0;
     case WM_INPUT:
         process_raw_input((HRAWINPUT)lParam);
@@ -1474,6 +1565,11 @@ static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPAR
     case WM_KEYUP:
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:
+        if (message == WM_KEYDOWN && wParam == VK_ESCAPE && g.confirmPending) {
+            g.confirmPending = FALSE; /* Esc answers the warning with "cancel" */
+            InvalidateRect(hwnd, NULL, FALSE);
+            return 0;
+        }
         log_fallback_key(message, wParam, lParam);
         break;
     case WM_MOUSEMOVE:
@@ -1484,7 +1580,19 @@ static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPAR
         return 0;
     case WM_LBUTTONUP:
         fallback_mouse_button(message, FALSE, 0);
-        if (point_in_rect_lparam(&g.clearButton, lParam))
+        if (g.confirmPending) {
+            /* While the warning is showing, only its two buttons react; a click anywhere else cancels. */
+            BOOL accepted = point_in_rect_lparam(&g.confirmYes, lParam);
+            g.confirmPending = FALSE;
+            if (accepted) set_background_capture(hwnd, TRUE);
+            InvalidateRect(hwnd, NULL, FALSE);
+        } else if (point_in_rect_lparam(&g.backgroundButton, lParam)) {
+            if (g.backgroundCapture)
+                set_background_capture(hwnd, FALSE); /* turning it off never needs a confirmation */
+            else
+                g.confirmPending = TRUE;
+            InvalidateRect(hwnd, NULL, FALSE);
+        } else if (point_in_rect_lparam(&g.clearButton, lParam))
             clear_dashboard();
         else if (point_in_rect_lparam(&g.openButton, lParam)) {
             HINSTANCE result = ShellExecuteW(hwnd, L"open", g.logDir, NULL, NULL, SW_SHOWNORMAL);
@@ -1558,6 +1666,7 @@ static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPAR
             create_backbuffer(hwnd, client.right, client.bottom);
         if (g.backDc && g.backWidth > 0 && g.backHeight > 0) {
             render_dashboard(g.backDc, g.backWidth, g.backHeight);
+            draw_confirmation(g.backDc, g.backWidth, g.backHeight);
             BitBlt(dc, 0, 0, g.backWidth, g.backHeight, g.backDc, 0, 0, SRCCOPY);
         }
         EndPaint(hwnd, &paint);
